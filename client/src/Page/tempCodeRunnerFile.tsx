@@ -1,0 +1,1 @@
+/crate a desktop mini view
