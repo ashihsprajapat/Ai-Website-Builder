@@ -7,10 +7,12 @@ import Pricing from "./Page/Pricing";
 import Priview from "./Page/Priview";
 import View from "./Page/View";
 import Projects from "./Page/Projects";
+import Navbar from "./Componenets/Navbar";
 
 const App = () => {
   return (
     <div>
+      <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/projects" element={<MyProject />} />
