@@ -8,13 +8,19 @@ import Priview from "./Page/Priview";
 import View from "./Page/View";
 import Projects from "./Page/Projects";
 import Navbar from "./Componenets/Navbar";
+import { Toaster, toast } from "sonner";
+import AuthPage from "./Page/auth/AuthPage";
+import Setting from "./Page/Setting";
 
 const App = () => {
   return (
     <div>
+      <Toaster position="bottom-left" />
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/auth/:pathname" element={<AuthPage />} />
+        <Route path="/account/settings" element={<Setting />} />
         <Route path="/projects" element={<MyProject />} />
         <Route path="/projects/:projectId" element={<Projects />} />
         <Route path="/projects/:projectId/:versionId" element={<Projects />} />
