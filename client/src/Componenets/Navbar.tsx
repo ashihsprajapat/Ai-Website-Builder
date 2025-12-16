@@ -9,6 +9,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const { data: session } = authClient.useSession();
+  console.log(session)
 
   return (
     <>
