@@ -1,15 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { assets } from "./../assets/assets";
 import { Link, useNavigate } from "react-router-dom";
 import { UserButton } from "@daveyplate/better-auth-ui";
 import { authClient } from "@/lib/auth-client";
+import api from "./../Confix/axios";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const { data: session } = authClient.useSession();
-  console.log(session)
+  console.log(session);
+
+  const getCredits = async () => {
+    try {
+      const { data } = await api.get("/api/user/credits");
+      console.log("data retriving from backend", data);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    if (session) getCredits();
+  }, [session]);
 
   return (
     <>
@@ -34,7 +46,7 @@ const Navbar = () => {
               Get started
             </button>
           ) : (
-            <UserButton size='icon' />
+            <UserButton size="icon" />
           )}
         </div>
 
