@@ -1,10 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { assets } from "./../assets/assets";
 import { Link, useNavigate } from "react-router-dom";
+import { UserButton } from "@daveyplate/better-auth-ui";
+import { authClient } from "@/lib/auth-client";
+import api from "./../Confix/axios";
+import axios from "axios";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+
+  const { data: session } = authClient.useSession();
+  console.log(session);
+
+  const [credits, setCredits] = useState(0);
+
+  const getCredits = async () => {
+    try {
+      const { data } = await api.get("/api/user/credits", {
+        withCredentials: true,
+      });
+      setCredits(data.credits);
+
+      console.log("data retriving from backend", data);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    if (session?.user) getCredits();
+  }, [session]);
+
   return (
     <>
       <nav className="z-50 flex items-center justify-between w-full py-4 px-4 md:px-16 lg:px-24 xl:px-32 backdrop-blur border-b text-white border-slate-800">
@@ -20,12 +45,22 @@ const Navbar = () => {
         </div>
 
         <div className="   flex items-center gap-3">
-          <button
-            className="px-6 text-sm py-1.5 bg-indigo-600 active:scale-95 hover:bg-indigo-700 transition rounded"
-            onClick={() => navigate("/auth/singin")}
-          >
-            Get started
-          </button>
+          {!session?.user ? (
+            <button
+              className="px-6 text-sm py-1.5 bg-indigo-600 active:scale-95 hover:bg-indigo-700 transition rounded"
+              onClick={() => navigate("/auth/singin")}
+            >
+              Get started
+            </button>
+          ) : (
+            <div className="gap-3 items-center flex justify-center ">
+              <div className=" border text-xs flex justify-center rounded-full px-3 py-1 bg-gray-800  ">
+                Credits :{" "}
+                <span className="text-yellow-400 ml-2"> {credits}</span>
+              </div>
+              <UserButton size="icon" />
+            </div>
+          )}
         </div>
 
         <button
