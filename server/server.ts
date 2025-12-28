@@ -19,11 +19,7 @@ app.use(cors(corsOptions));
 
 app.use(express.json({ limit: "50mb" }));
 
-app.all(
-  "/api/auth/{*any}",
-
-  toNodeHandler(auth)
-);
+app.all("/api/auth/{*any}", toNodeHandler(auth));
 
 const PORT: number = 3000;
 

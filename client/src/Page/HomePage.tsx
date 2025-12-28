@@ -1,17 +1,35 @@
-import {  Loader2Icon } from "lucide-react";
+import api from "@/Confix/axios";
+import { authClient } from "@/lib/auth-client";
+import { Loader2Icon } from "lucide-react";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const HomePage = () => {
   const [loading, setLoading] = useState(false);
-  const [input, setInput] = useState("");
+  const [initial_prompt, SetInitial_prompt] = useState("");
+  const navigate = useNavigate();
 
+  const { data: session } = authClient.useSession();
   const onSubmitHandler = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    //call to api
-    setTimeout(() => {
+    if (!session?.user) return toast.error("please sign in first");
+    if (initial_prompt.trim().length == 0)
+      return toast.error("please enter a message");
+
+    try {
+      e.preventDefault();
+      setLoading(true);
+
+      //call to api
+      const { data } = await api.post("/api/user/project", { initial_prompt });
+
       setLoading(false);
-    }, 3000);
+      SetInitial_prompt("");
+      navigate(`/projects/${data.projectId}`);
+    } catch (error) {
+      console.log(error);
+      //toast.error(error?.response?.data?.message || error.message);
+    }
   };
 
   return (
@@ -65,7 +83,7 @@ const HomePage = () => {
         className="bg-white/10 max-w-2xl w-full rounded-xl p-4 mt-10 border border-indigo-600/70 focus-within:ring-2 ring-indigo-500 transition-all"
       >
         <textarea
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => SetInitial_prompt(e.target.value)}
           className="bg-transparent outline-none text-gray-300 resize-none w-full"
           rows={4}
           placeholder="Describe your presentation in details"
@@ -78,7 +96,7 @@ const HomePage = () => {
               <Loader2Icon className=" animate-spin  " />
             </>
           ) : (
-            " Create with AI"
+            "Create with AI"
           )}
         </button>
       </form>

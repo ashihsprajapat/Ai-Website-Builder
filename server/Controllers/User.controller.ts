@@ -9,6 +9,7 @@ export const userCredist = async (req: Request, res: Response) => {
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
+
     res.json({ credits: user?.credits });
   } catch (error) {
     console.log(error);
@@ -20,6 +21,7 @@ export const userCredist = async (req: Request, res: Response) => {
 export const createUserProject = async (req: Request, res: Response) => {
   const userId = req.userId;
   try {
+    console.log("creating projects", req.body);
     const { initial_prompt } = req.body;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
@@ -67,7 +69,7 @@ export const createUserProject = async (req: Request, res: Response) => {
 
     //enhanve user prompt
     const promotEnhanceResponse = await openai.chat.completions.create({
-      model: "z-ai/glm-4.5-air:free",
+      model: "kwaipilot/kat-coder-pro:free",
       messages: [
         {
           role: "system",
@@ -109,7 +111,7 @@ export const createUserProject = async (req: Request, res: Response) => {
 
     //generate website code
     const codeGenerationResponse = await openai.chat.completions.create({
-      model: "z-ai/glm-4.5-air:free",
+      model: "kwaipilot/kat-coder-pro:free",
       messages: [
         {
           role: "system",
@@ -131,6 +133,21 @@ export const createUserProject = async (req: Request, res: Response) => {
     });
 
     const code = codeGenerationResponse.choices[0].message.content || "";
+
+    if (!code) {
+      await prisma.conversation.create({
+        data: {
+          role: "assistant",
+          content: "Unable to generate the code, please try again",
+          projectId: project.id,
+        },
+      });
+      await prisma.user.update({
+        where: { id: userId },
+        data: { credits: { increment: 5 } },
+      });
+      return;
+    }
 
     //create version for the project
     const version = await prisma.version.create({
@@ -208,6 +225,7 @@ export const getUserProjects = async (req: Request, res: Response) => {
       where: { userId },
       orderBy: { updatedAt: "desc" },
     });
+  
 
     res.json({ projects });
   } catch (error) {

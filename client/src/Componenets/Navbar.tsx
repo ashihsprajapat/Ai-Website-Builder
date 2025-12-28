@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserButton } from "@daveyplate/better-auth-ui";
 import { authClient } from "@/lib/auth-client";
 import api from "./../Confix/axios";
+import axios from "axios";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -12,15 +13,21 @@ const Navbar = () => {
   const { data: session } = authClient.useSession();
   console.log(session);
 
+  const [credits, setCredits] = useState(0);
+
   const getCredits = async () => {
     try {
-      const { data } = await api.get("/api/user/credits");
+      const { data } = await api.get("/api/user/credits", {
+        withCredentials: true,
+      });
+      setCredits(data.credits);
+
       console.log("data retriving from backend", data);
     } catch (error) {}
   };
 
   useEffect(() => {
-    if (session) getCredits();
+    if (session?.user) getCredits();
   }, [session]);
 
   return (
@@ -46,7 +53,13 @@ const Navbar = () => {
               Get started
             </button>
           ) : (
-            <UserButton size="icon" />
+            <div className="gap-3 items-center flex justify-center ">
+              <div className=" border text-xs flex justify-center rounded-full px-3 py-1 bg-gray-800  ">
+                Credits :{" "}
+                <span className="text-yellow-400 ml-2"> {credits}</span>
+              </div>
+              <UserButton size="icon" />
+            </div>
           )}
         </div>
 
