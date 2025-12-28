@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { toNodeHandler } from "better-auth/node";
@@ -19,11 +19,7 @@ app.use(cors(corsOptions));
 
 app.use(express.json({ limit: "50mb" }));
 
-app.all(
-  "/api/auth/{*any}",
-
-  toNodeHandler(auth)
-);
+app.all("/api/auth/{*any}", toNodeHandler(auth));
 
 const PORT: number = 3000;
 

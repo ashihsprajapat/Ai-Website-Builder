@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import type { Project } from "../types";
-import { Loader2Icon, PlusIcon } from "lucide-react";
+import { Loader2Icon, PlusIcon, TrashIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { dummyProjects } from "../assets/assets";
+import api from "@/Confix/axios";
+import Footer from "@/Componenets/Footer";
 
 function MyProject() {
   const [loading, setLoading] = useState(true);
@@ -11,7 +13,14 @@ function MyProject() {
   const navigate = useNavigate();
 
   const fetchProject = async () => {
-    setProjects(dummyProjects);
+    //calling to  apis
+    try {
+      const { data } = await api.get('/api/user/projects')
+      setProjects(data.projects)
+      console.log("all Projects", data)
+    } catch (error) {
+
+    }
     setTimeout(() => {
       setLoading(false);
     }, 1000);
@@ -20,6 +29,17 @@ function MyProject() {
   useEffect(() => {
     fetchProject();
   }, []);
+
+  //deleteing projects
+  const deleteProject = async (projectId: String) => {
+    try {
+      const { data } = await api.delete(`/api/project/${projectId}`)
+      fetchProject()
+      console.log("deleate project ", data)
+    } catch (error: any) {
+      console.log(error.message)
+    }
+  }
 
   return (
     <>
@@ -43,12 +63,14 @@ function MyProject() {
             <div className="flex flex-wrap gap-3 mt-20">
               {projects.map((project, i) => (
                 <div
+                  onClick={() => navigate(`/projects/${project.id}`)}
                   key={project.id}
                   className="
                   relative group w-72 max-sm:max-auto cursor-pointer bg-gray-900/60
                   border border-b-gray-700 rounded-lg overflow-hidden shadow-md group hover:shadow-indigo-700/30 hover:border-indigo-800/80
                   transition-all duration-300  "
                 >
+
                   <div className="relative w-full h-40 bg-gray-900 overflow-hidden border-b border-gray-800 ">
                     {project.current_code ? (
                       <iframe
@@ -84,7 +106,7 @@ function MyProject() {
                       <div className="flex gap-3  ">
                         <button
                           className="text-white bg-gray-800  px-2 py-1  text-sm rounded-sm "
-                          onClick={() => navigate(`/projects/${project.id}`)}
+                          onClick={() => navigate(`/preview/${project.id}`)}
                         >
                           Priview
                         </button>
@@ -92,7 +114,13 @@ function MyProject() {
                           Open
                         </button>
                       </div>
+
                     </div>
+                  </div>
+                  <div onClick={(e) => { e.stopPropagation() }} >
+                    <TrashIcon className="absolute top-3 right-3 scale-0 group-hover:scale-100 bg-white p-1.5 size-7 rounded text-red-500
+                    text-xl cursor-pointer transition-all " onClick={() => deleteProject(project.id)} />
+
                   </div>
                 </div>
               ))}
@@ -113,6 +141,7 @@ function MyProject() {
           </div>
         )}
       </div>
+      <Footer />
     </>
   );
 }
