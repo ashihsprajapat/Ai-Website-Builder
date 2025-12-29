@@ -14,11 +14,13 @@ import Setting from "./Page/Setting";
 
 const App = () => {
   const { pathname } = useLocation();
-  console.log(pathname);
+  let hideNavbar = pathname.startsWith("/projects") && pathname !== "/projects"
+    || pathname.startsWith("/view")
+    || pathname.startsWith("/preview")
   return (
     <div>
       <Toaster position="bottom-left" />
-      {pathname.includes("preview") ? <></> : <Navbar />}
+      {!hideNavbar && <Navbar />}
 
       <Routes>
         <Route path="/" element={<HomePage />} />
