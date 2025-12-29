@@ -2,9 +2,11 @@ import api from "@/Confix/axios";
 import { authClient } from "@/lib/auth-client";
 import type { Project } from "@/types";
 import { DownloadIcon, EyeIcon, EyeOffIcon, Fullscreen, Laptop2Icon, LaptopIcon, Loader2Icon, MessageSquare, SaveIcon, Smartphone, TabletIcon, XIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import Sidebar from './../Componenets/Sidebar';
+import ProjectPreview, { type ProjectPreviewRef } from "@/Componenets/ProjectPreview";
 
 const Projects = () => {
   const { projectId } = useParams();
@@ -20,11 +22,14 @@ const Projects = () => {
   const [isSaving, setIsSaving] = useState(false);
   //const previewRef = useRef<null>(null);
 
+  const periViewRef= useRef<ProjectPreviewRef>(null)
+
   const fetchProject = async () => {
     try {
       const { data } = await api.get(`/api/user/project/${projectId}`);
       // if (setTimeout(() => {
       //   if (project) {
+      console.log("data get by bacckend", data)
       setProject(data.project);
       setIsGenerating(!data.project.current_code ? true : false);
       setLoading(false);
@@ -54,7 +59,16 @@ const Projects = () => {
     // element.click();
   };
 
-  const togglePublish = async () => { };
+  const togglePublish = async () => {
+    try {
+      const { data } = await api.put(`/api/user/publish-toggle/${projectId}`)
+      console.log(" after publishing data is ", data)
+      setProject(data.project);
+    } catch (error: any) {
+      console.log(error.message)
+
+    }
+  };
 
   useEffect(() => {
     if (session?.user) fetchProject();
@@ -85,7 +99,7 @@ const Projects = () => {
   return project ? (
     <div className="flex  flex-col h-screen w-full bg-gray-900 text-white " >
       {/* builder navbar */}
-      <div className=" flex max-sm:flex-col sm:items-center gap-4 px-4 py-2 no-scrollbar " >
+      <div className=" flex max-sm:flex-col sm:items-center gap-4 px-4 py-2 no-scrollbar  " >
         {/* left column */}
         <div className="flex items-center gap-2 sm:min-w-90 text-nowrap ">
           <img src='/favicon.svg' className="h-6 cursor-pointer " onClick={() => navigate("/")} alt="" />
@@ -115,7 +129,8 @@ const Projects = () => {
         {/* right */}
         <div className="flex items-center justify-end gap-3 flex-1 text-xs ">
 
-          <button disabled={isSaving} className="flex items-center justify-center bg-gray-800 rounded-md px-3 py-1.5 gap-2 " >
+          <button disabled={isSaving} className="flex items-center justify-center bg-gray-800 rounded-md px-3 py-1.5 gap-2 "
+            onClick={saveProject}>
 
             {
               isSaving ?
@@ -130,12 +145,13 @@ const Projects = () => {
             <Fullscreen size={16} />
             Preview</Link>
           <button
-            className="flex items-center justify-center bg-gray-800 rounded-md px-3 py-1.5 gap-2 ">
+            onClick={downloadCode}
+            className="flex items-center justify-center bg-blue-700  rounded-md px-3 py-1.5 gap-2 ">
             <DownloadIcon size={16} />
             Download</button>
           <button
-
-            className="flex items-center justify-center bg-gray-800 rounded-md px-3 py-1.5 gap-2 "
+            onClick={togglePublish}
+            className="flex items-center justify-center bg-blue-800 rounded-md px-3 py-1.5 gap-2 "
           >
             {
               project.isPublished ?
@@ -147,6 +163,19 @@ const Projects = () => {
 
 
         </div>
+
+      </div>
+
+      <div className="flex-1 flex  overflow-hidden">
+        {/* left side conversion  */}
+        <div className="flex w-1/4 flex overflow-auto  ">
+          <Sidebar project={project} setProject={(p)=>setProject(p)} isGenerating={isGenerating}
+            setIsGenerating={setIsGenerating} isMenuOpen={isMenuOpen}  />
+        </div>
+        {/* right side view of website */}
+        <div className="p-2 flex-1 pl-0 ">
+          <ProjectPreview ref={periViewRef} project={project} isGenerating={isGenerating} device={device}  />
+          </div>
 
       </div>
     </div>
