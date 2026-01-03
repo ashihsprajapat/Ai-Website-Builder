@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 
 interface EditorPanelProps {
     selectedElement: {
@@ -20,13 +20,20 @@ interface EditorPanelProps {
 
 
 const EditorPanel = ({ selectedElement, onUpdate, onClose }: EditorPanelProps) => {
+
     const [values, setValues] = useState(selectedElement)
+
     useEffect(() => {
         setValues(selectedElement)
     }, [selectedElement])
 
     if (!selectedElement || !values)
         return null
+
+    const handleChange= (field : string, value : string)=>{
+        const newvalue= {...values.styles, [field]:value};
+        if(field in values.styles)
+    }
 
 
     return (
