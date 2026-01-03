@@ -30,10 +30,10 @@ const EditorPanel = ({ selectedElement, onUpdate, onClose }: EditorPanelProps) =
     if (!selectedElement || !values)
         return null
 
-    const handleChange= (field : string, value : string)=>{
-        const newvalue= {...values.styles, [field]:value};
-        if(field in values.styles)
-    }
+    // const handleChange= (field : string, value : string)=>{
+    //     const newvalue= {...values.styles, [field]:value};
+    //     if(field in values.styles)
+    // }
 
 
     return (
