@@ -191,24 +191,24 @@ export const rollbackToVersion = async (req: Request, res: Response) => {
 
     if (!project) return res.status(404).json({ message: "Project not found" });
 
-    const versio = project.versions.find((version) => version.id == versionId);
+    const versio = project.versions.find((vers) => vers.id == versionId);
+    return res.json({ message: "somthing went wrong" })
+    // if (!versio) {
+    //   return res.status(404).json({ message: "Version not found" });
+    // }
 
-    if (!versio) {
-      return res.status(404).json({ message: "Version not found" });
-    }
+    // await prisma.websiteProject.update({
+    //   where: { id: projectId, userId },
+    //   data: { current_code: versio.code, current_version_index: versio.id },
+    // });
 
-    await prisma.websiteProject.update({
-      where: { id: projectId, userId },
-      data: { current_code: versio.code, current_version_index: versio.id },
-    });
-
-    await prisma.conversation.create({
-      data: {
-        role: "assistant",
-        content: `I;ve rolled back your website to selected version . You can now preview it`,
-        projectId,
-      },
-    });
+    // await prisma.conversation.create({
+    //   data: {
+    //     role: "assistant",
+    //     content: `I;ve rolled back your website to selected version . You can now preview it`,
+    //     projectId,
+    //   },
+    // });
 
     res.json({ message: "version rolled back" });
   } catch (error: any) {
